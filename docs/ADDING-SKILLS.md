@@ -208,7 +208,7 @@ allowed-tools:
 ### 4. Re-install
 
 ```cmd
-uv pip install -e .
+uv sync
 ```
 
 Restart Copilot CLI to pick up the new tool.

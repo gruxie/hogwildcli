@@ -58,14 +58,14 @@ See `docs/ARCHITECTURE.md` for the full technical design.
 ### Step 1: Clone the repo
 
 ```bash
-git clone https://github.com/YOUR_ORG/hogwild-uxr.git
-cd hogwild-uxr
+git clone https://github.com/gruxie/hogwildcli.git
+cd hogwildcli
 ```
 
 ### Step 2: Install dependencies
 
 ```bash
-uv pip install -e .
+uv sync
 ```
 
 ### Step 3: Copy skills to Copilot CLI
@@ -90,14 +90,14 @@ Add this entry to `~/.copilot/mcp-config.json` (create the file if it doesn't ex
 {
   "mcpServers": {
     "hogwild-uxr": {
-      "command": "uv",
-      "args": ["run", "--project", "C:\\path\\to\\hogwild-uxr", "hogwild-uxr"]
+      "command": "/full/path/to/uv",
+      "args": ["run", "--project", "/full/path/to/hogwildcli", "hogwild-uxr"]
     }
   }
 }
 ```
 
-> **Note:** Replace the `--project` path with your actual clone location. If `uv` is not on your system PATH, use the full path to `uv.exe` (e.g., `C:\\Users\\you\\AppData\\Roaming\\Python\\Python313\\Scripts\\uv.exe`).
+> **Note:** Replace both paths with your actual locations. On Windows use double backslashes (e.g., `C:\\Users\\you\\hogwildcli`). Find your `uv` path with `where uv` (Windows) or `which uv` (macOS/Linux).
 
 ### Step 5: Restart Copilot CLI and verify
 
@@ -274,7 +274,7 @@ See `docs/COMMANDS.md` for the complete reference.
 ```bash
 cd hogwild-uxr
 git pull
-uv pip install -e .
+uv sync
 # Re-copy skills if any changed:
 xcopy skills\uxr-* "%USERPROFILE%\.copilot\skills\" /E /I /Y
 ```

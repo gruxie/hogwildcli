@@ -9,6 +9,21 @@ echo " Hogwild UXR - Installer"
 echo "============================================"
 echo ""
 
+# Check for Python 3.10+
+if ! command -v python3 &> /dev/null && ! command -v python &> /dev/null; then
+    echo "[ERROR] Python is not installed."
+    echo "Install Python 3.10+: https://www.python.org/downloads/"
+    exit 1
+fi
+PYTHON_CMD=$(command -v python3 || command -v python)
+PY_VERSION=$($PYTHON_CMD --version 2>&1 | awk '{print $2}')
+PY_MAJOR=$(echo "$PY_VERSION" | cut -d. -f1)
+PY_MINOR=$(echo "$PY_VERSION" | cut -d. -f2)
+if [ "$PY_MAJOR" -lt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -lt 10 ]; }; then
+    echo "[ERROR] Python 3.10+ required, found $PY_VERSION"
+    exit 1
+fi
+
 # Check for uv
 if ! command -v uv &> /dev/null; then
     echo "[ERROR] uv is not installed."
@@ -19,7 +34,10 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "[1/4] Installing MCP server package..."
-uv pip install -e "$SCRIPT_DIR" --quiet
+if ! uv sync --project "$SCRIPT_DIR" --quiet; then
+    echo "      [ERROR] Failed to install package. Check uv and Python 3.10+ are working."
+    exit 1
+fi
 echo "      Done."
 
 echo ""
@@ -39,6 +57,12 @@ echo "[3/4] Registering MCP server in Copilot CLI config..."
 MCP_CONFIG="$HOME/.copilot/mcp-config.json"
 UV_PATH=$(which uv)
 
+# Back up existing config if present
+if [ -f "$MCP_CONFIG" ]; then
+    cp "$MCP_CONFIG" "$MCP_CONFIG.bak"
+    echo "      Backed up existing config to mcp-config.json.bak"
+fi
+
 cat > "$MCP_CONFIG" << EOF
 {
   "mcpServers": {
@@ -52,8 +76,18 @@ EOF
 echo "      Done. Config at $MCP_CONFIG"
 
 echo ""
-echo "[4/4] Verifying..."
-echo "      Server registered (stdio transport — verified on first Copilot CLI use)."
+echo "[4/4] Verifying server starts..."
+uv run --project "$SCRIPT_DIR" hogwild-uxr &
+SERVER_PID=$!
+sleep 3
+if kill -0 $SERVER_PID 2>/dev/null; then
+    echo "      Server verified OK."
+    kill $SERVER_PID 2>/dev/null
+    wait $SERVER_PID 2>/dev/null
+else
+    echo "      [ERROR] Server failed to start. Check that Python 3.10+ is installed."
+    exit 1
+fi
 
 echo ""
 echo "============================================"

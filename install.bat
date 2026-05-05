@@ -7,6 +7,25 @@ echo  Hogwild UXR - Installer
 echo ============================================
 echo.
 
+REM Check for Python 3.10+
+python --version >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Python is not installed or not on PATH.
+    echo Install Python 3.10+: https://www.python.org/downloads/
+    exit /b 1
+)
+for /f "tokens=2 delims= " %%v in ('python --version 2^>^&1') do set "PY_VER=%%v"
+for /f "tokens=1,2 delims=." %%a in ("%PY_VER%") do (
+    if %%a LSS 3 (
+        echo [ERROR] Python 3.10+ required, found %PY_VER%
+        exit /b 1
+    )
+    if %%a EQU 3 if %%b LSS 10 (
+        echo [ERROR] Python 3.10+ required, found %PY_VER%
+        exit /b 1
+    )
+)
+
 REM Check for uv
 where uv >nul 2>&1
 if %ERRORLEVEL% neq 0 (
@@ -21,7 +40,7 @@ set "SCRIPT_DIR=%~dp0"
 set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 
 echo [1/4] Installing MCP server package...
-uv pip install -e "%SCRIPT_DIR%" --quiet
+uv sync --project "%SCRIPT_DIR%" --quiet
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to install package.
     exit /b 1
@@ -46,8 +65,14 @@ set "MCP_CONFIG=%USERPROFILE%\.copilot\mcp-config.json"
 REM Find uv path
 for /f "delims=" %%i in ('where uv') do set "UV_PATH=%%i"
 
+REM Back up existing config if present
+if exist "%MCP_CONFIG%" (
+    copy /y "%MCP_CONFIG%" "%MCP_CONFIG%.bak" >nul
+    echo       Backed up existing config to mcp-config.json.bak
+)
+
 REM Create or update mcp-config.json
-REM NOTE: This creates a minimal config. If you have existing MCPs, merge manually.
+REM NOTE: This creates a minimal config. If you have existing MCPs, merge from .bak.
 echo {> "%MCP_CONFIG%"
 echo   "mcpServers": {>> "%MCP_CONFIG%"
 echo     "hogwild-uxr": {>> "%MCP_CONFIG%"
@@ -59,13 +84,16 @@ echo }>> "%MCP_CONFIG%"
 echo       Done. Config at %MCP_CONFIG%
 
 echo.
-echo [4/4] Verifying...
-uv run --project "%SCRIPT_DIR%" hogwild-uxr --help >nul 2>&1
+echo [4/4] Verifying server starts...
+start "" /b uv run --project "%SCRIPT_DIR%" hogwild-uxr
+timeout /t 3 /nobreak >nul
+tasklist /fi "imagename eq hogwild-uxr.exe" 2>nul | find /i "hogwild-uxr" >nul
 if %ERRORLEVEL% equ 0 (
-    echo       Server responds OK.
+    echo       Server verified OK.
+    taskkill /f /im hogwild-uxr.exe >nul 2>&1
 ) else (
-    echo       [WARN] Server didn't respond to --help. This is normal for stdio servers.
-    echo       It will work when Copilot CLI invokes it.
+    echo       [ERROR] Server failed to start. Check that Python 3.10+ is installed.
+    exit /b 1
 )
 
 echo.
