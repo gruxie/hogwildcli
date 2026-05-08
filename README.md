@@ -25,13 +25,13 @@ The pipeline prevents hallucination, extrapolation, and frequency distortion thr
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   GitHub Copilot CLI                          │
-│               (LLM reasoning engine — no API key)            │
+│                   GitHub Copilot CLI                        │
+│               (LLM reasoning engine — no API key)           │
 ├─────────────────────────────────────────────────────────────┤
-│  14 Skills (SKILL.md)           │  Orchestrator MCP (19 tools) │
-│  • Reasoning instructions       │  • State management          │
-│  • Domain knowledge             │  • File I/O + validation     │
-│  • Workflow sequences           │  • Provenance tracking        │
+│  14 Skills (SKILL.md)           │  Orchestrator MCP         │
+│  • Reasoning instructions       │  • State management       │
+│  • Domain knowledge             │  • File I/O + validation  │
+│  • Workflow sequences           │  • Provenance tracking    │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
