@@ -38,12 +38,16 @@ def scaffold_config(
     participants: list[dict[str, str]],
     method: str = "Semi-structured interview",
     max_iterations: int = 3,
+    motivations: str = "",
+    goals: str = "",
+    intended_impacts: str = "",
 ) -> str:
-    """Create a research_config.yaml for a new study project."""
+    """Create a research_config.yaml for a new study project, plus grounding/ stub files."""
     return json.dumps(
         lifecycle.scaffold_config(
             project_dir, title, description, research_question,
             hypotheses, participants, method, max_iterations,
+            motivations, goals, intended_impacts,
         ),
         indent=2,
     )
@@ -141,6 +145,26 @@ def get_synthesis(config_path: str) -> str:
 
 
 # ─── Artifact I/O Tools ──────────────────────────────────────────────────────
+
+
+@mcp.tool()
+def save_grounding_artifact(config_path: str, filename: str, content: str) -> str:
+    """Save a grounding artifact to ./grounding/ in the project directory."""
+    return json.dumps(
+        artifact_io.save_grounding_artifact(config_path, filename, content), indent=2
+    )
+
+
+@mcp.tool()
+def get_grounding_artifact(config_path: str, filename: str) -> str:
+    """Get the content of a grounding artifact from ./grounding/."""
+    return json.dumps(artifact_io.get_grounding_artifact(config_path, filename), indent=2)
+
+
+@mcp.tool()
+def list_grounding_artifacts(config_path: str) -> str:
+    """List all files in ./grounding/ (excludes working/ subdirectory)."""
+    return json.dumps(artifact_io.list_grounding_artifacts(config_path), indent=2)
 
 
 @mcp.tool()

@@ -7,6 +7,7 @@ allowed-tools:
   - hogwild-uxr_start_participant
   - hogwild-uxr_get_revelation_context
   - hogwild-uxr_get_artifact
+  - hogwild-uxr_get_grounding_artifact
 ---
 
 # Insight Extractor
@@ -27,8 +28,9 @@ Extracts structured, evidence-grounded insights from preprocessed UX research tr
 
 1. Call `start_participant` to transition state to 'extracting'
 2. Read the `{stem}_converted.md` transcript from the output directory
-3. Apply the extraction rules below to produce insight JSON
-4. Call `submit_insights` with the structured insight array
+3. **Load grounding if available** — call `get_grounding_artifact` for `focus_memo.md`. If present, read it before extracting. Use Participant POV scores (0–4) to calibrate attention and Researcher POV on_topic/off_topic scopes to guide what to surface or suppress. If no focus memo exists, proceed without it.
+4. Apply the extraction rules below to produce insight JSON
+5. Call `submit_insights` with the structured insight array
 
 On **Revelation re-runs** (iteration > 1):
 1. Call `get_revelation_context` to get failed issues + transcript
@@ -44,6 +46,8 @@ Do not quote or attribute the moderator.
 ## Core extraction rules
 
 **Grounding over interpretation.** Every insight must be traceable to specific utterance(s). If you cannot identify the turn(s) that support a claim, do not make the claim.
+
+**1–3 quotes per insight.** Every insight must include between 1 and 3 supporting evidence entries. Never submit an insight with zero quotes. Never include more than 3 quotes for a single insight — if more seem relevant, surface them as separate insights or consolidate.
 
 **Quote before you claim.** Locate the supporting evidence first, then state the insight. Never work in reverse.
 

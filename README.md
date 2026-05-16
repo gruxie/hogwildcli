@@ -10,12 +10,14 @@ Hogwild UXR automates the labor-intensive parts of qualitative research analysis
 
 | Phase | What happens | Skill responsible |
 |-------|-------------|-------------------|
+| **Ground** | Analyze 1–3 transcripts to build a focus memo that shapes analysis | `uxr-grounding` |
 | **Preprocess** | .docx → structured Markdown + JSON turns | `uxr-preprocessor` |
 | **Extract** | Surface evidence-grounded insights from participant utterances | `uxr-extractor` |
 | **Evaluate** | Verify every insight against the source transcript (5-check process) | `uxr-evaluator` |
 | **Revelation** | Re-extract failed insights with targeted correction instructions | `uxr-extractor` (loop) |
 | **Synthesize** | Build cross-participant themes organized by hypothesis | `uxr-synthesizer` |
 | **Report** | Generate audience-tailored narratives with integrity audits | `uxr-narrator` / `uxr-debriefer` |
+| **CD Notes** | Generate a casual email-ready summary for wide distribution | `uxr-cdnotes` |
 
 The pipeline prevents hallucination, extrapolation, and frequency distortion through a structured evaluation loop — every insight must trace to verbatim evidence in the transcript.
 
@@ -131,6 +133,9 @@ my-study/
 │   ├── Meeting_-_P1_Devon.docx
 │   ├── Meeting_-_P2_Taylor.docx
 │   └── Meeting_-_P3_Jordan.docx
+├── grounding/                     ← created automatically on first run
+│   ├── focus_memo.md
+│   └── grounding_log.json
 └── output/                        ← created automatically
 ```
 
@@ -141,6 +146,12 @@ study:
   title: "AI-Assisted App Modernization — Evaluative Research"
   description: "Semi-structured interviews exploring developer experience with AI tooling"
   method: "Semi-structured interview"
+  motivations: >
+    Context and stakeholder need behind this study.
+  goals: >
+    Outcomes and work products the researcher hopes to produce.
+  intended_impacts: >
+    How findings will shape the product or customer experience.
 
 research:
   question: "What organizational and individual factors drive or hinder AI adoption in application modernization?"
@@ -149,25 +160,40 @@ research:
     - "H2: Bottom-up — adoption is driven by individual developer motivations"
     - "H3: Social proof — adoption accelerates when peers demonstrate success"
 
+grounding:
+  additional_context: ""   # Optional researcher note — not written by the system
+
 participants:
   - id: P1
     file: "Meeting_-_P1_Devon.docx"
     interviewee_speaker: "Smith, Devon P"
     alias: "Devon"
+    role: "VP of Product"
+    company: "Acme Corp"
+    tags: "enterprise, seg_1"
+    cohorts: "[wave1]"
   - id: P2
     file: "Meeting_-_P2_Taylor.docx"
     interviewee_speaker: "Johnson, Taylor M"
     alias: "Taylor"
+    role: "Product Manager"
+    company: "Beta Inc"
+    tags: "enterprise, seg_2"
+    cohorts: "[wave1]"
   - id: P3
     file: "Meeting_-_P3_Jordan.docx"
     interviewee_speaker: "Lee, Jordan K"
     alias: "Jordan"
+    role: "Engineer"
+    company: "Gamma LLC"
+    tags: "smb, seg_1"
+    cohorts: "[wave2]"
 
 transcripts_dir: "./transcripts"
 
 output:
   dir: "./output"
-  max_iterations: 3       # Revelation loop cap
+  max_iterations: 3
 ```
 
 ### 3. Place .docx transcripts
@@ -206,6 +232,13 @@ Run the full analysis on my research project at C:\projects\my-study
 Analyze all transcripts in C:\projects\my-study using research_config.yaml
 ```
 
+### Grounding (optional first step)
+
+```
+Run grounding on my study at C:\projects\my-study
+Build a focus memo using P1 and P2's transcripts
+```
+
 ### Individual operations
 ```
 Extract insights from P1's transcript
@@ -213,6 +246,13 @@ Evaluate the insights for P1
 Synthesize findings across all participants
 Generate a narrative report for designers
 Create a stakeholder debrief for leadership
+Generate CD Notes from the completed report
+```
+
+### Filtered synthesis
+```
+Synthesize only wave1 participants
+Compare enterprise vs smb segments
 ```
 
 ### Post-analysis
@@ -233,16 +273,18 @@ Help me set up a new research project in C:\projects\new-study with 5 participan
 
 ## What's in the box
 
-### 14 Skills
+### 16 Skills
 
 | Skill | Purpose | When to use |
 |-------|---------|-------------|
 | `uxr-controller` | Orchestrate full pipeline | "Run the full analysis" |
+| `uxr-grounding` | Build focus memo from 1–3 transcripts | "Run grounding on my study" |
 | `uxr-preprocessor` | .docx → .md + _turns.json | "Convert my transcripts" |
 | `uxr-extractor` | Extract grounded insights | "What did participants say?" |
 | `uxr-evaluator` | Verify against transcript | "Are these insights accurate?" |
 | `uxr-synthesizer` | Cross-participant themes | "Find patterns across sessions" |
 | `uxr-narrator` | Audience-tailored reports | "Generate a PM report" |
+| `uxr-cdnotes` | Casual email summary for wide distribution | "Generate CD Notes" |
 | `uxr-debriefer` | Stakeholder summaries | "Summarize for leadership" |
 | `uxr-contradiction` | Find conflicts in data | "What contradictions exist?" |
 | `uxr-ontology` | Tagging taxonomy | "Create an annotation ontology" |
@@ -290,6 +332,12 @@ xcopy skills\uxr-* "%USERPROFILE%\.copilot\skills\" /E /I /Y
 | `uv` not found | Use full path to `uv.exe` in mcp-config.json |
 | Tool confirmation prompts | Use `copilot --allow-all-tools` or `/allow-all` |
 | Transcript parse fails | Verify .docx uses Speaker/Timestamp/Utterance format (no tables) |
+
+---
+
+## Acknowledgments
+
+Thanks to Irina Smoke for skill contributions and feedback that shaped this release.
 
 ---
 

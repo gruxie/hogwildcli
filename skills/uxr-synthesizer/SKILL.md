@@ -14,11 +14,16 @@ Takes per-participant finalized insight files and produces a structured cross-se
 
 ## Workflow
 
-1. Call `load_config` to get research question and hypotheses
+1. Call `load_config` to get research question, hypotheses, and participant manifest (including `tags` and `cohorts` fields)
 2. Call `get_project_status` to confirm 2+ participants are finalized
-3. Call `get_insights` for each finalized participant
-4. Perform synthesis reasoning (below)
-5. Call `submit_synthesis` with the structured synthesis JSON
+3. Determine scope from the researcher's request:
+   - **All participants** — include everyone
+   - **Filter by cohort** — include only participants whose `cohorts` field contains the specified value
+   - **Filter by tag** — include only participants whose `tags` field contains the specified value
+   - **Compare two groups** — run synthesis for each group separately, then produce a cross-group delta section; if more than 2 groups are requested, surface the ambiguity and ask the researcher to clarify before proceeding
+4. Call `get_insights` for each participant in scope
+5. Perform synthesis reasoning (below)
+6. Call `submit_synthesis` with the structured synthesis JSON
 
 ## Synthesis procedure
 

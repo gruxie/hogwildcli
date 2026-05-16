@@ -112,5 +112,9 @@ def get_participant(config: dict[str, Any], participant_id: str) -> dict[str, An
     return None
 
 
+def get_grounding_dir(config: dict[str, Any]) -> Path:
+    return get_project_dir(config) / "grounding"
+
+
 def get_max_iterations(config: dict[str, Any]) -> int:
     return config.get("output", {}).get("max_iterations", 3)

@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from ..config import load_config, get_output_dir
+from ..config import load_config, get_output_dir, get_grounding_dir
 from ..errors import artifact_not_found, validation_error
 from ..sandbox import ensure_parent_exists
 
@@ -50,6 +50,63 @@ def save_artifact(
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     return {"status": "saved", "path": str(artifact_path), "artifact_type": artifact_type}
+
+
+def save_grounding_artifact(
+    config_path: str,
+    filename: str,
+    content: str,
+) -> dict[str, Any]:
+    """Save a grounding artifact to ./grounding/ in the project directory."""
+    config = load_config(config_path)
+    if "error" in config:
+        return config
+
+    if not filename:
+        return validation_error("filename is required")
+    if content is None:
+        return validation_error("content is required")
+
+    grounding_dir = get_grounding_dir(config)
+    grounding_dir.mkdir(parents=True, exist_ok=True)
+
+    artifact_path = grounding_dir / filename
+    ensure_parent_exists(artifact_path)
+    artifact_path.write_text(content, encoding="utf-8")
+
+    return {"status": "saved", "path": str(artifact_path)}
+
+
+def get_grounding_artifact(config_path: str, filename: str) -> dict[str, Any]:
+    """Get the content of a grounding artifact from ./grounding/."""
+    config = load_config(config_path)
+    if "error" in config:
+        return config
+
+    grounding_dir = get_grounding_dir(config)
+    artifact_path = grounding_dir / filename
+
+    if not artifact_path.exists():
+        return artifact_not_found(str(artifact_path), "grounding artifact")
+
+    return {"filename": filename, "content": artifact_path.read_text(encoding="utf-8")}
+
+
+def list_grounding_artifacts(config_path: str) -> dict[str, Any]:
+    """List files present in ./grounding/ (excludes working/ subdirectory)."""
+    config = load_config(config_path)
+    if "error" in config:
+        return config
+
+    grounding_dir = get_grounding_dir(config)
+    if not grounding_dir.exists():
+        return {"artifacts": [], "grounding_initialized": False}
+
+    artifacts = [
+        f.name for f in grounding_dir.iterdir()
+        if f.is_file() and not f.name.startswith(".")
+    ]
+    return {"artifacts": sorted(artifacts), "grounding_initialized": True}
 
 
 def list_artifacts(config_path: str, artifact_type: str | None = None) -> dict[str, Any]:

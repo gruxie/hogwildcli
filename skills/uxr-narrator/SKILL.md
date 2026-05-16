@@ -15,13 +15,14 @@ Transforms completed UX research synthesis into audience-ready communication art
 
 ## Workflow
 
-1. Call `load_config` to get study metadata and participant aliases
+1. Call `load_config` to get study metadata, participant aliases, roles, and companies
 2. Call `get_synthesis` to load structured synthesis data
 3. Call `get_insights` for each participant to get quotes and evidence
 4. Ask the user for audience and format (if not specified)
 5. Apply narrative framework below to compose the artifact
-6. Run integrity audit (MANDATORY)
-7. Call `save_artifact` with filename `narrative_report_{audience}.md`
+6. Run pre-output traceability check (MANDATORY — see uxr-evaluator Check 6 pre-output rules): verify every claim traces to a source insight and every quote traces to a source transcript. Do not save until all pass.
+7. Run integrity audit (MANDATORY)
+8. Call `save_artifact` with filename `Summary/{study_title} Report.md`
 
 ## Audience behavior
 
@@ -38,10 +39,10 @@ Each finding follows: **Context → Tension → Insight → Implication → Reso
 
 ## Quote usage rules
 
-- Use participant aliases (from config), not full names
-- **Minimum 2, maximum 3 direct quotes per finding**
-- Format as blockquote with participant alias in bold
-- Never edit a quote for flow; use ellipsis to condense
+- Use `First Name, Role at Company` attribution drawn from participant manifest (`alias`, `role`, `company` fields) — never use last names
+- **1–3 direct quotes per finding** (minimum 1, maximum 3)
+- Format inline: `"Quote text." — First Name, Role at Company`
+- Never edit a quote for flow; use `[...]` for omissions, `[brackets]` for inserted words
 - A quote can illustrate a theme; it cannot establish one
 
 | Confidence | Usage |

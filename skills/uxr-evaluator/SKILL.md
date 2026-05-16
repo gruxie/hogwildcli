@@ -128,6 +128,21 @@ Write `revelation_instruction` as a direct, specific instruction to the extracto
 - Include actual transcript text in `transcript_ref`
 - State what's wrong and what to do
 
+## Check 6: Quote count
+
+Each insight must have 1–3 evidence entries. Flag any insight with:
+- Zero quotes: **Fail** (`unsupported`)
+- More than 3 quotes: **Flag** — ask extractor to consolidate
+
+## Pre-output traceability (reports and narratives)
+
+When called before a report or narrative is written, run an additional check on the draft content:
+
+- **Insight traceability:** Every summative claim in the report must correspond to an insight that exists in a `_insights_final.json` file. If a claim cannot be matched to a source insight, flag it — the report must not be saved until it is resolved or removed.
+- **Quote traceability:** Every quote in the report must appear (verbatim, allowing documented `[bracket]` insertions and `[...]` omissions) in the source transcript `_turns.json`. Flag any quote that cannot be verified.
+
+This check is **blocking** — the report is not written until all flagged items are resolved.
+
 ## Reference files
 
 - `references/failure-taxonomy.md` — Full definitions of each issue type
